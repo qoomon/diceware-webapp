@@ -104,6 +104,15 @@
            padding-right: 1.1em;
 
          }
+
+         #toast {
+           position: fixed;
+           margin: auto;
+           top: 85vh;
+           left: 0;
+           right: 0;
+           width: fit-content;
+         }
       </style>
    </head>
    <body>
@@ -123,8 +132,9 @@
             <button @click="removeWord()" :disabled="words.length <= 1" class="button-icon">−</button>
             <button @click="rerollWords()">{{ words.length }} Words</button>
             <button @click="addWord()" class="button-icon">+</button>
-            <button @click="copyToClipboard(words.map(word => word.word).join(' '))" class="button-icon"><i class="bx bx-copy" style="display: block;"></i></button>
+            <button @click="copyWordsToClipboard()" class="button-icon"><i class="bx bx-copy" style="display: block;"></i></button>
          </div>
+         <div id="toast" v-if="toastMessage !== null">{{toastMessage}}</div>
       </div>
 
        <!-- GitHub Corner -->
@@ -206,6 +216,12 @@
               
               const words = Vue.ref([]);
               
+              const toastMessage = Vue.ref(null);
+              function showToast(message) {
+                toastMessage.value = message;
+                setTimeout(function() { toastMessage.value = null;}, 3000);
+              }
+
               const actions = {
                 rerollWords() {words.value = words.value.map(() => rollWord());},
                 rerollWord(index) {words.value[index] = rollWord();},
@@ -219,6 +235,11 @@
                     if(words.value.length > 1 ) words.value.pop();
                   }
                 },
+                copyWordsToClipboard() {
+                  const wordsSeparator = ' ';
+                  copyToClipboard(words.value.map(word => word.word).join(wordsSeparator));
+                  showToast("Copied to Clipboard!");
+                }
               }
               
               Vue.onMounted(async () => {
@@ -238,7 +259,7 @@
                 });
               });
               
-              return {words, ...actions, copyToClipboard};
+              return {toastMessage, words, ...actions};
             },
           }).mount('#app')
       </script>
