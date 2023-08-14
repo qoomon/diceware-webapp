@@ -76,6 +76,12 @@
            font-weight: 300;
            height: 2.0em;          
          }
+         #controls .button-icon {
+           font-weight: bold;
+           font-size: 1.05em;
+           padding-left: 1em;
+           padding-right: 1em;
+         }
          #controls button {
            border-style: solid;
            border-width: 1px;
@@ -90,17 +96,13 @@
          }
          #controls button:first-child {
            border-radius: 2em 0 0 2em;
-           padding-left: 1em;
-           padding-right: 0.8em;
-           font-weight: bold;
-           font-size: 1.05em;
+           padding-left: 1.1em;
+
          }
          #controls button:last-child {
            border-radius: 0 2em 2em 0;
-           padding-right: 1em;
-           padding-left: 0.8em;
-           font-weight: bold;
-           font-size: 1.05em;
+           padding-right: 1.1em;
+
          }
       </style>
    </head>
@@ -118,9 +120,10 @@
             </div>
          </main>
          <div id="controls">
-            <button @click="removeWord()" :disabled="words.length <= 1" >−</button>
+            <button @click="removeWord()" :disabled="words.length <= 1" class="button-icon">−</button>
             <button @click="rerollWords()">{{ words.length }} Words</button>
-            <button @click="addWord()">+</button>
+            <button @click="addWord()" class="button-icon">+</button>
+            <button @click="copyToClipboard(words.map(word => word.word).join(' '))" class="button-icon"><i class="bx bx-copy" style="display: block;"></i></button>
          </div>
       </div>
 
@@ -131,6 +134,15 @@
       </a>
 
       <script>
+         function copyToClipboard(text) {
+           const textarea = document.createElement('textarea');
+           textarea.value = text;
+           document.body.appendChild(textarea);
+           textarea.select();
+           document.execCommand('copy');
+           document.body.removeChild(textarea);
+         } 
+          
          function hashColor(str, saturation = 50, lightness = 50, alpha = 100) {
            const hash = BKDRHash(str);
            const hue = hash % 359;
@@ -226,7 +238,7 @@
                 });
               });
               
-              return {words, ...actions};
+              return {words, ...actions, copyToClipboard};
             },
           }).mount('#app')
       </script>
