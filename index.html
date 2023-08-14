@@ -1,0 +1,227 @@
+<!doctype html>
+<html>
+   <head>
+      <title>Example Domain</title>
+      <meta charset="utf-8" />
+      <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      
+      <script src="https://unpkg.com/vue@3.3.4/dist/vue.global.prod.js" integrity="sha384-QLgwzsuau/sa8LhRgjRzkvQS0LyUzCM2B8FPwVoSu1KDel940/orifPaumNXp9hK" crossorigin="anonymous"></script>
+      <!--<script src="https://unpkg.com/vue@3.3.4/dist/vue.global.js" crossorigin="anonymous"></script>-->
+
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Flow+Block&family=Inconsolata:wght@200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+      
+      <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel="stylesheet">
+      <style type="text/css">
+         body {
+           background-color: #1b1b23;
+           color: #fdfeff;
+           margin: 0;
+           padding: 0;
+           font-family: Inconsolata;
+           box-sizing: border-box;
+         }
+         main {
+           display: flex;
+           justify-content: center;
+           margin: 200px auto;
+           padding: 2em;
+           flex-wrap: wrap;
+           row-gap: 2em;
+         }
+         .wordContainer {
+           display: flex;
+           flex-direction: column;
+           align-items: center;
+           width: 7em;
+           padding: 0 1em;
+         }
+         .word {
+           font-weight: 300;
+           font-size: 1.6em;
+         }
+         .wordColor {
+           width: 100%;
+           margin-top: 0.8em;
+           height: 0.25em;
+           color: white;      
+         }
+         .wordId {
+           margin-top: 1em;
+           font-size: 0.6em;
+           color: #797983;
+         }
+         .diceContainer {
+           margin-top: 0.6em;
+           font-size: 0.9em;
+           font-weight: 200;
+           color: #797983;
+           cursor: pointer;
+         }
+         .dice {
+          margin: 0 0.2em;
+         }
+         
+         #controls {
+           position: fixed;
+           left: 0;
+           right: 0;
+           top: 90vh;
+           display: flex;
+           justify-content: center;
+           margin: 0 auto;
+           color: #797983;
+           font-weight: 300;
+           height: 2.0em;          
+         }
+         #controls button {
+           border-style: solid;
+           border-width: 1px;
+           margin-left: -1px;
+           padding: 0.2em 1.2em;
+           background: #fefefe1c;
+           color: #fefefecf;
+           cursor: pointer;
+         }
+         #controls button:active {
+          opacity: 60%;
+         }
+         #controls button:first-child {
+           border-radius: 2em 0 0 2em;
+           padding-left: 1em;
+           padding-right: 0.8em;
+           font-weight: bold;
+           font-size: 1.05em;
+         }
+         #controls button:last-child {
+           border-radius: 0 2em 2em 0;
+           padding-right: 1em;
+           padding-left: 0.8em;
+           font-weight: bold;
+           font-size: 1.05em;
+         }
+      </style>
+   </head>
+   <body>
+      <div id="app">
+         <main>
+            <div v-for="(word, index) in words" class="wordContainer">
+               <div class="word">{{ word.word }}</div>
+               <div class="wordColor" :style="{background: word.color}"></div>
+               <div class="diceContainer" @click="rerollWord(index)">
+                  <i v-for="(dice, index) in word.dices" 
+                     :class="`dice bx bx-dice-${dice}`"></i>
+               </div>
+               <div class="wordId">{{ word.id }}</div>
+            </div>
+         </main>
+         <div id="controls">
+            <button @click="removeWord()" :disabled="words.length <= 1" >−</button>
+            <button @click="rerollWords()">{{ words.length }} Words</button>
+            <button @click="addWord()">+</button>
+         </div>
+      </div>
+      <script>
+         function hashColor(str, saturation = 50, lightness = 50, alpha = 100) {
+           const hash = BKDRHash(str);
+           const hue = hash % 359;
+           return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha}%)`;
+         }
+         
+         // from https://github.com/zenozeng/color-hash
+         function BKDRHash(str) {
+           let seed = 131;
+           var seed2 = 137;
+           let hash = 0;
+           // make hash more sensitive for short string like 'a', 'b', 'c'
+           str += '#';
+           // Note: Number.MAX_SAFE_INTEGER equals 9007199254740991
+           let MAX_SAFE_INTEGER = Math.floor(9007199254740991 / seed2);
+           for(let i = 0; i < str.length; i++) {
+             if(hash > MAX_SAFE_INTEGER) {
+               hash = Math.floor(hash / seed2);
+             }
+             hash = hash * seed + str.charCodeAt(i);
+           }
+           return hash;
+         }
+         
+         function randomDiceValue(sides = 6) {
+           const min = 1;
+           const max = sides;
+           return Math.floor(Math.random() * (max - min + 1)) + min;
+         }
+         
+         function checkRandomDice(dice, rollCount = 1_000_000, validDerivation = 0.01){
+           const diceResults = {};
+           for (let i = 0; i < rollCount; i++) {
+             const diveValue = dice()
+             diceResults[diveValue] = (diceResults[diveValue] || 0) + 1
+           }
+           const diceValueCounts = Object.values(diceResults);
+           const diceValueCountDistance = Math.abs(Math.min(...diceValueCounts) - Math.max(...diceValueCounts));
+           console.info('verify dice results:', diceResults);
+           if(diceValueCountDistance > rollCount * validDerivation) {
+             throw new Error('invalid dice');
+           } else {
+             console.info('valid dice');
+           }
+         }
+         
+          Vue.createApp({
+            setup() {
+              const diceSides = 6;
+              const diceWordMap = Vue.ref(new Map());
+              const diceWordIdLength = 5;
+              
+              function rollWord(){
+                  const dices = Array.from({length: diceWordIdLength}, () => randomDiceValue(diceSides));
+                  const id = dices.join('');
+                  const word = diceWordMap.value.get(id);
+                  const color = hashColor(word, 50, 50, 50);
+         
+                  return {dices, id, word, color};
+              }
+              
+              const words = Vue.ref([]);
+              
+              const actions = {
+                rerollWords() {words.value = words.value.map(() => rollWord());},
+                rerollWord(index) {words.value[index] = rollWord();},
+                addWord(count = 1) {
+                  for (let i = 0; i < count; i++) {
+                    words.value.push(rollWord());
+                  }
+                },
+                removeWord(count = 1) {
+                  for (let i = 0; i < count; i++) {
+                    if(words.value.length > 1 ) words.value.pop();
+                  }
+                },
+              }
+              
+              Vue.onMounted(async () => {
+                // verify dice
+                checkRandomDice(() => randomDiceValue(diceSides));
+         
+                // load dice word list
+                diceWordMap.value = await fetch('/assets/eff_large_wordlist.txt')
+                 .then(response => response.text())
+                 .then(data => new Map(data.split('\n').map(line => line.split('\t'))));
+          
+                console.log("wordCount", localStorage.getItem("wordCount"))
+                actions.addWord(+localStorage.getItem("wordCount") || 6);
+                Vue.watchPostEffect(() => {
+                  console.log("watchEffect", words.value);
+                  localStorage.setItem("wordCount", words.value.length);
+                });
+              });
+              
+              return {words, ...actions};
+            },
+          }).mount('#app')
+      </script>
+   </body>
+</html>
