@@ -102,7 +102,6 @@
          #controls button:last-child {
            border-radius: 0 2em 2em 0;
            padding-right: 1.1em;
-
          }
 
          #toast {
@@ -112,6 +111,11 @@
            left: 0;
            right: 0;
            width: fit-content;
+           opacity: 1;
+           transition: opacity 1s ease-in;
+         }
+         #toast.fade {
+           opacity: 0;
          }
       </style>
    </head>
@@ -134,7 +138,7 @@
             <button @click="addWord()" class="button-icon">+</button>
             <button @click="copyWordsToClipboard()" class="button-icon"><i class="bx bx-copy" style="display: block;"></i></button>
          </div>
-         <div id="toast" v-if="toastMessage !== null">{{toastMessage}}</div>
+         <div id="toast" v-if="toast.message !== null" :class="{fade: toast.fade}">{{toast.message}}</div>
       </div>
 
        <!-- GitHub Corner -->
@@ -216,10 +220,11 @@
               
               const words = Vue.ref([]);
               
-              const toastMessage = Vue.ref(null);
+              const toast =  Vue.ref({message: null,fade:false});
               function showToast(message) {
-                toastMessage.value = message;
-                setTimeout(function() { toastMessage.value = null;}, 3000);
+                toast.value = { message, fade: false };
+                setTimeout(function() { toast.value.fade = true }, 1000);
+                setTimeout(function() { toast.value.message = null }, 2000);
               }
 
               const actions = {
@@ -259,7 +264,7 @@
                 });
               });
               
-              return {toastMessage, words, ...actions};
+              return {toast, words, ...actions};
             },
           }).mount('#app')
       </script>
