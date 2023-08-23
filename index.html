@@ -26,7 +26,7 @@
          main {
            display: flex;
            justify-content: center;
-           margin: 200px auto;
+           margin: 256px auto;
            padding: 2em;
            flex-wrap: wrap;
            row-gap: 2em;
@@ -61,20 +61,20 @@
            cursor: pointer;
          }
          .dice {
-          margin: 0 0.2em;
+           margin: 0 0.2em;
          }
          
          #controls {
            position: fixed;
            left: 0;
            right: 0;
-           top: 90vh;
+           top: 128px;
            display: flex;
            justify-content: center;
            margin: 0 auto;
-           color: #797983;
            font-weight: 300;
-           height: 2.0em;          
+           height: 2em;
+           font-size: 1.3em;
          }
          #controls .button-icon {
            font-weight: bold;
@@ -85,14 +85,16 @@
          #controls button {
            border-style: solid;
            border-width: 1px;
+           border-color: #797983;
            margin-left: -1px;
            padding: 0.2em 1.2em;
-           background: #fefefe1c;
-           color: #fefefecf;
+           background: #1a1a24;;
+           color: #e0e0e1;
            cursor: pointer;
+           font-size: 0.7em;
          }
          #controls button:active {
-          opacity: 60%;
+           opacity: 60%;
          }
          #controls button:first-child {
            border-radius: 2em 0 0 2em;
@@ -107,12 +109,20 @@
          #toast {
            position: fixed;
            margin: auto;
-           top: 85vh;
+           top: 80vh;
            left: 0;
            right: 0;
            width: fit-content;
            opacity: 1;
            transition: opacity 1s ease-in;
+           background-color: #e0e0e1;
+           color: #1a1a24;
+           border-style: solid;
+           border-width: 1px;
+           border-color: #797983;
+           border-radius: 10em;
+           padding: 0.6em 1.2em;
+           font-weight: bold;
          }
          #toast.fade {
            opacity: 0;
@@ -259,7 +269,6 @@
                 console.log("wordCount", localStorage.getItem("wordCount"))
                 actions.addWord(+localStorage.getItem("wordCount") || 6);
                 Vue.watchPostEffect(() => {
-                  console.log("watchEffect", words.value);
                   localStorage.setItem("wordCount", words.value.length);
                 });
               });
