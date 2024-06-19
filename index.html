@@ -223,7 +223,8 @@
               function rollWord(){
                   const dices = Array.from({length: diceWordIdLength}, () => randomDiceValue(diceSides));
                   const id = dices.join('');
-                  const word = diceWordMap.value.get(id);
+                  let word = diceWordMap.value.get(id);
+                  word = word[0].toUpperCase() + word.slice(1);
                   const color = hashColor(word, 50, 50, 50);
          
                   return {dices, id, word, color};
