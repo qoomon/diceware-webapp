@@ -55,11 +55,12 @@
            color: #797983;
          }
          .diceContainer {
-           margin-top: 0.6em;
+           padding-top: 0.6em;
            font-size: 0.9em;
            font-weight: 200;
            color: #797983;
            cursor: pointer;
+           overflow: hidden;
          }
          .dice {
            margin: 0 0.2em;
@@ -129,6 +130,102 @@
            opacity: 0;
          }
       </style>
+      <style>
+         .roll-1 {
+            transform: translateY(-300%) rotate(20deg);
+            animation:roll1 1.3s both;
+         }
+
+         .roll-2 {
+            transform: translateY(-300%) rotate(-20deg);
+            animation: roll2 1.3s both;
+         }
+
+         @keyframes roll1 {
+            0% {
+               transform: translateY(-300%) rotate(20deg);
+               animation-timing-function: ease-in
+            }
+
+            38% {
+               transform: translateY(0) rotate(-20deg);
+               animation-timing-function: ease-out
+            }
+
+            55% {
+               transform: translateY(-70%) rotate(0);
+               animation-timing-function: ease-in
+            }
+
+            72% {
+               transform: translateY(0) rotate(15deg);
+               animation-timing-function: ease-out
+            }
+
+            81% {
+               transform: translateY(-40%) rotate(0);
+               animation-timing-function: ease-in
+            }
+
+            90% {
+               transform: translateY(0) rotate(-8deg);
+               animation-timing-function: ease-out
+            }
+
+            95% {
+               transform: translateY(-10%) rotate(0);
+               animation-timing-function: ease-in
+            }
+
+            100% {
+               transform: translateY(0) rotate(0);
+               animation-timing-function: ease-out
+            }
+         }
+
+         @keyframes roll2 {
+            0% {
+               transform: translateY(-300%) rotate(-20deg);
+               animation-timing-function: ease-in
+            }
+
+            38% {
+               transform: translateY(0) rotate(20deg);
+               animation-timing-function: ease-out
+            }
+
+            55% {
+               transform: translateY(-70%) rotate(0);
+               animation-timing-function: ease-in
+            }
+
+            72% {
+               transform: translateY(0) rotate(-15deg);
+               animation-timing-function: ease-out
+            }
+
+            81% {
+               transform: translateY(-40%) rotate(0);
+               animation-timing-function: ease-in
+            }
+
+            90% {
+               transform: translateY(0) rotate(8deg);
+               animation-timing-function: ease-out
+            }
+
+            95% {
+               transform: translateY(-10%) rotate(0);
+               animation-timing-function: ease-in
+            }
+
+            100% {
+               transform: translateY(0) rotate(0);
+               animation-timing-function: ease-out
+            }
+         }
+
+      </style>
    </head>
    <body>
       <div id="app">
@@ -137,8 +234,11 @@
                <div class="word">{{ word.word }}</div>
                <div class="wordColor" :style="{background: word.color}"></div>
                <div class="diceContainer" @click="rerollWord(index)">
-                  <i v-for="(dice, index) in word.dices" 
-                     :class="`dice bx bx-dice-${dice}`"></i>
+                  <i v-for="(dice, index) in word.dices"
+                        :key="new Date()"
+                     :class="`dice bx bx-dice-${dice} roll-${Math.random()>=0.5 ? 1 : 2}`"
+                     :style="`animation-delay:${Math.random() * 300}ms`"
+                     ></i>
                </div>
                <div class="wordId">{{ word.id }}</div>
             </div>
