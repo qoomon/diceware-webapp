@@ -284,8 +284,8 @@
             <div class="wordColor" :style="{background: word.color}"></div>
             <div class="diceContainer" @click="rerollWord(index)">
                 <i v-for="(dice, index) in word.dices"
-                   :class="`dice bx bx-dice-${dice} roll-${Math.random()>=0.5 ? 1 : 2}`"
-                   :style="`animation-delay:${Math.random() * 250}ms`"
+                   :class="`dice bx bx-dice-${dice.value} roll-${Math.random()>=0.5 ? 1 : 2}`"
+                   :style="`animation-delay:${dice.delay}ms`"
                 ></i>
             </div>
             <div class="wordId"
@@ -404,14 +404,26 @@
             const diceWordIdLength = 5;
 
             function rollWord() {
-                const dices = Array.from({length: diceWordIdLength}, () => randomDiceValue(diceSides));
+                const dices = Array.from({length: diceWordIdLength}, () => ({
+                    value: randomDiceValue(diceSides),
+                    delay: Math.random() * 250,
+                }));
+
                 const id = dices.join('');
                 let word = diceWordMap.value.get(id);
                 word = word[0].toUpperCase() + word.slice(1);
                 const color = hashColor(word, 50, 50, 50);
 
-                const delay = 600 + Math.random() * 300;
-                return {dices, id, word, color, delay};
+                const rollAnimationDuration = 1.1; // see .rollX css class
+                const totalRollAnimationDuration = rollAnimationDuration + Math.max(...dices.map(({delay}) => delay));
+
+                return {
+                    dices, 
+                    id, 
+                    word, 
+                    color, 
+                    delay: totalRollAnimationDuration
+                };
             }
 
             const words = Vue.ref([]);
