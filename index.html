@@ -275,16 +275,16 @@
 <body>
 <div id="app">
     <main>
-        <div v-for="(word, index) in words" :key="new Date()"
-             class="wordContainer">
+        <div v-for="(word, index) in words" :key="index + word.id"
+            @click="rerollWord(index)" class="wordContainer">
             <div class="word"
                  :style="`animation-delay:${(word.delay)}ms`"
             >{{ word.word }}
             </div>
             <div class="wordColor" :style="{background: word.color}"></div>
-            <div class="diceContainer" @click="rerollWord(index)">
-                <i v-for="(dice, index) in word.dices"
-                   :class="`dice bx bx-dice-${dice.value} roll-${Math.random()>=0.5 ? 1 : 2}`"
+            <div class="diceContainer">
+                <i v-for="(dice, index) in word.dices" :key="index"
+                   :class="`dice bx bx-dice-${dice.value} roll-${dice.animation}`"
                    :style="`animation-delay:${dice.delay}ms`"
                 ></i>
             </div>
@@ -407,6 +407,7 @@
                 const dices = Array.from({length: diceWordIdLength}, () => ({
                     value: randomDiceValue(diceSides),
                     delay: 400 * Math.random(),
+                    animation: randomDiceValue(2),
                 }));
 
                 const id = dices.map(({value}) => value).join('');
@@ -445,7 +446,21 @@
                     words.value = words.value.map(() => rollWord());
                 },
                 rerollWord(index) {
-                    words.value[index] = rollWord();
+                    const currentDices = words.value[index].dices;
+                    const word = rollWord();
+                    words.value[index]  = {
+                        ...word,
+                        dices: word.dices.map((dice, index) => ({
+                          ...dice,
+                          value: currentDices[index].value,
+                        })),
+                    };
+                    setTimeout(() => {
+                        words.value[index].dices = words.value[index].dices.map((dice, index) => ({
+                          ...dice,
+                          value: word.dices[index].value,
+                        }));
+                    }, 500);
                 },
                 addWord(count = 1) {
                     for (let i = 0; i < count; i++) {
