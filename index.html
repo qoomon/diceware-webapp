@@ -285,7 +285,7 @@
             <div class="diceContainer" @click="rerollWord(index)">
                 <i v-for="(dice, index) in word.dices"
                    :class="`dice bx bx-dice-${dice} roll-${Math.random()>=0.5 ? 1 : 2}`"
-                   :style="`animation-delay:${Math.random() * (word.delay + 200)}ms`"
+                   :style="`animation-delay:${Math.random() * 250}ms`"
                 ></i>
             </div>
             <div class="wordId"
