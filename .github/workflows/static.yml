@@ -25,6 +25,6 @@ jobs:
       # Step 3: Sync files to S3
       - name: Sync files to S3
         run: |
-          aws s3 sync ./ s3://your-bucket-name --exclude ".git/*"
+          aws s3 sync ./ s3://diceware-github-actions --exclude ".git/*"
 
 
