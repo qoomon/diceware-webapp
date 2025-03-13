@@ -24,7 +24,7 @@ jobs:
 
       # Step 3: List current contents in S3 bucket for debugging purposes
       - name: List files in S3 bucket
-        run: aws s3 ls s3://my-static-website-bucket
+        run: aws s3 ls s3://diceware-github-actions
 
       # Step 4: Sync files to S3 (excluding .git folder)
       - name: Sync files to S3
