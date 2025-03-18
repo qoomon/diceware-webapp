@@ -275,14 +275,14 @@
 <body>
 <div id="app">
     <main>
-        <div v-for="(word, index) in words" :key="index + word.id"
-            @click="rerollWord(index)" class="wordContainer">
+        <div v-for="(word, index) in words" :key="index + word.id" 
+            class="wordContainer">
             <div class="word"
                  :style="`animation-delay:${(word.delay)}ms`"
             >{{ word.word }}
             </div>
             <div class="wordColor" :style="{background: word.color}"></div>
-            <div class="diceContainer">
+            <div class="diceContainer" @click="rerollWord(index)">
                 <i v-for="(dice, index) in word.dices" :key="index"
                    :class="`dice bx bx-dice-${dice.value} roll-${dice.animation}`"
                    :style="`animation-delay:${dice.delay}ms`"
