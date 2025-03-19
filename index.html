@@ -484,8 +484,10 @@
                 // verify dice
                 checkRandomDice(() => randomDiceValue(diceSides));
 
+                
                 // load dice word list
-                diceWordMap.value = await fetch('./assets/eff_large_wordlist.txt')
+                const wordlistId = new URLSearchParams(location.search).get('wordlist') ?? 'en';
+                diceWordMap.value = await fetch(`./assets/wordlist_${wordlistId}.txt`)
                     .then(response => response.text())
                     .then(data => new Map(data.split('\n').map(line => line.split('\t'))));
 
