@@ -488,6 +488,7 @@
                 // load dice word list
                 const wordlistId = new URLSearchParams(location.search).get('wordlist') ?? 'en';
                 diceWordMap.value = await fetch(`./assets/wordlist_${wordlistId}.txt`)
+                    .then(response => response.status === 200 ? response : fetch(`./assets/wordlist_en.txt`))
                     .then(response => response.text())
                     .then(data => new Map(data.split('\n').map(line => line.split('\t'))));
 
