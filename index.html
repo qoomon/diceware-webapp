@@ -451,7 +451,7 @@
 
             const actions = {
                 rerollWords() {
-                    words.value = words.value.map(() => rollWord());
+                    words.value.forEach((word, index) => this.rerollWord(index));
                 },
                 rerollWord(index) {
                     const currentDices = words.value[index].dices;
