@@ -132,6 +132,23 @@
             padding-right: 1.1em;
         }
 
+        #controls select {
+            border-style: solid;
+            border-width: 1px;
+            border-color: #797983;
+            margin-left: -1px;
+            padding: 0.2em 0.8em;
+            background: #1a1a24;
+            color: #e0e0e1;
+            cursor: pointer;
+            font-size: 0.7em;
+            font-family: Inconsolata, monospace;
+        }
+
+        #controls select:active {
+            opacity: 60%;
+        }
+
         #toast {
             position: fixed;
             margin: auto;
@@ -299,6 +316,10 @@
         <button @click="removeWord()" :disabled="words.length <= 1" class="button-icon">−</button>
         <button @click="rerollWords()">{{ words.length }} Words</button>
         <button @click="addWord()" class="button-icon">+</button>
+        <select v-model="wordlistId">
+            <option value="en">English</option>
+            <option value="de">Deutsch</option>
+        </select>
         <button @click="copyWordsToClipboard()" class="button-icon"><i class="bx bx-copy" style="display: block;"></i>
         </button>
     </div>
@@ -411,6 +432,32 @@
             const diceWordMap = Vue.ref(new Map());
             const diceWordIdLength = 5;
 
+            const supportedWordlists = ['en', 'de'];
+            const defaultWordlistId = 'en';
+
+            function getInitialWordlistId() {
+                const saved = localStorage.getItem("wordlistId");
+                if (saved && supportedWordlists.includes(saved)) return saved;
+                const browserLang = (navigator.language || '').split('-')[0].toLowerCase();
+                if (supportedWordlists.includes(browserLang)) return browserLang;
+                return defaultWordlistId;
+            }
+
+            const wordlistId = Vue.ref(getInitialWordlistId());
+
+            async function loadWordlist(id) {
+                return fetch(`./assets/wordlist_${id}.txt`)
+                    .then(response => {
+                        if (response.status !== 200) {
+                            console.warn(`Wordlist '${id}' not found, falling back to '${defaultWordlistId}'`);
+                            return fetch(`./assets/wordlist_${defaultWordlistId}.txt`);
+                        }
+                        return response;
+                    })
+                    .then(response => response.text())
+                    .then(data => new Map(data.split('\n').map(line => line.split('\t'))));
+            }
+
             function rollWord() {
                 const dices = Array.from({length: diceWordIdLength}, () => ({
                     value: randomDiceValue(diceSides),
@@ -491,24 +538,24 @@
                 // verify dice
                 checkRandomDice(() => randomDiceValue(diceSides));
 
-                
                 // load dice word list
-                const defaultWordlistId = 'en';
-                const wordlistId = new URLSearchParams(location.search).get('wordlist') ?? 'en';
-                diceWordMap.value = await fetch(`./assets/wordlist_${wordlistId}.txt`)
-                    .then(response => response.status === 200 ? response 
-                        : fetch(`./assets/wordlist_${defaultWordlistId}.txt`))
-                    .then(response => response.text())
-                    .then(data => new Map(data.split('\n').map(line => line.split('\t'))));
+                diceWordMap.value = await loadWordlist(wordlistId.value);
 
                 console.log("wordCount", localStorage.getItem("wordCount"))
                 actions.addWord(+localStorage.getItem("wordCount") || 6);
                 Vue.watchPostEffect(() => {
                     localStorage.setItem("wordCount", words.value.length);
                 });
+
+                // reload wordlist and reroll when language selection changes
+                Vue.watch(wordlistId, async (newId) => {
+                    localStorage.setItem("wordlistId", newId);
+                    diceWordMap.value = await loadWordlist(newId);
+                    actions.rerollWords();
+                });
             });
 
-            return {toast, words, ...actions};
+            return {toast, words, wordlistId, ...actions};
         },
     }).mount('#app')
 </script>
