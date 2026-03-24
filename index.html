@@ -114,35 +114,39 @@
             background: #1a1a24;;
             color: #e0e0e1;
             cursor: pointer;
+            font-family: Inconsolata, serif;
             font-size: 0.7em;
+            font-weight: bold;
         }
 
         #controls button:active {
             opacity: 60%;
         }
 
-        #controls button:first-child {
+        #controls > *:first-child {
             border-radius: 2em 0 0 2em;
-            padding-left: 1.1em;
+            padding-left: 1.6em;
 
         }
 
-        #controls button:last-child {
+        #controls > *:last-child {
             border-radius: 0 2em 2em 0;
             padding-right: 1.1em;
         }
 
         #controls select {
+            -webkit-appearance: none;
             border-style: solid;
             border-width: 1px;
             border-color: #797983;
             margin-left: -1px;
-            padding: 0.2em 0.8em;
+            padding: 0.2em 1.2em;
             background: #1a1a24;
             color: #e0e0e1;
             cursor: pointer;
+            font-family: Inconsolata, serif;
             font-size: 0.7em;
-            font-family: Inconsolata, monospace;
+            font-weight: bold;
         }
 
         #controls select:active {
@@ -165,6 +169,7 @@
             border-color: #797983;
             border-radius: 10em;
             padding: 0.6em 1.2em;
+            font-weight: bold;
             font-weight: bold;
         }
 
@@ -313,13 +318,14 @@
         </div>
     </main>
     <div id="controls">
-        <button @click="removeWord()" :disabled="words.length <= 1" class="button-icon">−</button>
+        
         <button @click="rerollWords()">{{ words.length }} Words</button>
-        <button @click="addWord()" class="button-icon">+</button>
         <select v-model="wordlistId">
             <option value="en">English</option>
-            <option value="de">Deutsch</option>
+            <option value="de">German</option>
         </select>
+        <button @click="removeWord()" :disabled="words.length <= 1" class="button-icon">−</button>
+        <button @click="addWord()" class="button-icon">+</button>
         <button @click="copyWordsToClipboard()" class="button-icon"><i class="bx bx-copy" style="display: block;"></i>
         </button>
     </div>
