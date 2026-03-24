@@ -20,14 +20,27 @@
 
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel="stylesheet">
     <style>
+        :root {
+            --color-bg: #1b1b23;
+            --color-bg-alt: #1a1a24;
+            --color-text: whitesmoke;
+            --color-text-light: #e0e0e1;
+            --color-muted: #797983;
+            --font-family: Inconsolata, serif;
+        }
+
+        /* --- Base --- */
+
         body {
-            background-color: #1b1b23;
-            color: whitesmoke;
+            background-color: var(--color-bg);
+            color: var(--color-text);
             margin: 0;
             padding: 0;
-            font-family: Inconsolata, serif;
+            font-family: var(--font-family);
             box-sizing: border-box;
         }
+
+        /* --- Word Grid --- */
 
         main {
             display: flex;
@@ -38,7 +51,7 @@
             row-gap: 2em;
         }
 
-        .wordContainer {
+        .word-container {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -46,7 +59,7 @@
             padding: 0 1em;
         }
 
-        .word {
+        .word-label {
             font-weight: 300;
             font-size: 1.6em;
             overflow: hidden;
@@ -55,7 +68,7 @@
             animation: appear 0.5s both;
         }
 
-        .wordColor {
+        .word-color {
             width: 100%;
             height: 0.25em;
             color: white;
@@ -63,20 +76,20 @@
             transition-delay: 1.1s;
         }
 
-        .wordId {
+        .word-id {
             margin-top: 1em;
             font-size: 0.6em;
-            color: #797983;
+            color: var(--color-muted);
             opacity: 0;
             animation: appear 0.5s both;
             user-select: none;
         }
 
-        .diceContainer {
+        .dice-container {
             padding-top: 0.6em;
             font-size: 0.9em;
             font-weight: 200;
-            color: #797983;
+            color: var(--color-muted);
             cursor: pointer;
             overflow: hidden;
         }
@@ -84,6 +97,8 @@
         .dice {
             margin: 0 0.2em;
         }
+
+        /* --- Controls --- */
 
         #controls {
             position: fixed;
@@ -105,28 +120,28 @@
             padding-right: 1em;
         }
 
-        #controls button {
-            border-style: solid;
-            border-width: 1px;
-            border-color: #797983;
+        #controls button,
+        #controls select {
+            -webkit-appearance: none;
+            border: 1px solid var(--color-muted);
             margin-left: -1px;
             padding: 0.2em 1.2em;
-            background: #1a1a24;;
-            color: #e0e0e1;
+            background: var(--color-bg-alt);
+            color: var(--color-text-light);
             cursor: pointer;
-            font-family: Inconsolata, serif;
+            font-family: var(--font-family);
             font-size: 0.7em;
             font-weight: bold;
         }
 
-        #controls button:active {
+        #controls button:active,
+        #controls select:active {
             opacity: 60%;
         }
 
         #controls > *:first-child {
             border-radius: 2em 0 0 2em;
             padding-left: 1.6em;
-
         }
 
         #controls > *:last-child {
@@ -134,24 +149,7 @@
             padding-right: 1.1em;
         }
 
-        #controls select {
-            -webkit-appearance: none;
-            border-style: solid;
-            border-width: 1px;
-            border-color: #797983;
-            margin-left: -1px;
-            padding: 0.2em 1.2em;
-            background: #1a1a24;
-            color: #e0e0e1;
-            cursor: pointer;
-            font-family: Inconsolata, serif;
-            font-size: 0.7em;
-            font-weight: bold;
-        }
-
-        #controls select:active {
-            opacity: 60%;
-        }
+        /* --- Toast --- */
 
         #toast {
             position: fixed;
@@ -162,14 +160,11 @@
             width: fit-content;
             opacity: 1;
             transition: opacity 1s ease-in;
-            background-color: #e0e0e1;
-            color: #1a1a24;
-            border-style: solid;
-            border-width: 1px;
-            border-color: #797983;
+            background-color: var(--color-text-light);
+            color: var(--color-bg-alt);
+            border: 1px solid var(--color-muted);
             border-radius: 10em;
             padding: 0.6em 1.2em;
-            font-weight: bold;
             font-weight: bold;
         }
 
@@ -178,6 +173,8 @@
         }
     </style>
     <style>
+        /* --- Dice Roll Animations --- */
+
         .roll-1 {
             transform: translateY(-300%) rotate(20deg);
             animation: roll1 1.1s both;
@@ -298,27 +295,27 @@
 <body>
 <div id="app">
     <main>
-        <div v-for="(word, index) in words" :key="index + word.id" 
-            class="wordContainer">
-            <div class="word"
-                 :style="`animation-delay:${(word.delay)}ms`"
-            >{{ word.word }}
+        <div v-for="(word, index) in words" :key="index + word.id"
+             class="word-container">
+            <div class="word-label"
+                 :style="{ animationDelay: word.delay + 'ms' }">
+                {{ word.word }}
             </div>
-            <div class="wordColor" :style="{background: word.color}"></div>
-            <div class="diceContainer" @click="rerollWord(index)">
-                <i v-for="(dice, index) in word.dices" :key="index"
-                   :class="`dice bx bx-dice-${dice.value} roll-${dice.animation}`"
-                   :style="`animation-delay:${dice.delay}ms`"
-                ></i>
+            <div class="word-color" :style="{ background: word.color }"></div>
+            <div class="dice-container" @click="rerollWord(index)">
+                <i v-for="(die, dieIndex) in word.dices" :key="dieIndex"
+                   :class="['dice', 'bx', `bx-dice-${die.value}`, `roll-${die.animation}`]"
+                   :style="{ animationDelay: die.delay + 'ms' }">
+                </i>
             </div>
-            <div class="wordId"
-                 :style="`animation-delay:${word.delay}ms`"
-            >{{ word.id }}
+            <div class="word-id"
+                 :style="{ animationDelay: word.delay + 'ms' }">
+                {{ word.id }}
             </div>
         </div>
     </main>
+
     <div id="controls">
-        
         <button @click="rerollWords()">{{ words.length }} Words</button>
         <select v-model="wordlistId">
             <option value="en">English</option>
@@ -326,10 +323,14 @@
         </select>
         <button @click="removeWord()" :disabled="words.length <= 1" class="button-icon">−</button>
         <button @click="addWord()" class="button-icon">+</button>
-        <button @click="copyWordsToClipboard()" class="button-icon"><i class="bx bx-copy" style="display: block;"></i>
+        <button @click="copyWordsToClipboard()" class="button-icon">
+            <i class="bx bx-copy" style="display: block;"></i>
         </button>
     </div>
-    <div id="toast" v-if="toast.message !== null" :class="{fade: toast.fade}">{{toast.message}}</div>
+
+    <div id="toast" v-if="toast.message !== null" :class="{ fade: toast.fade }">
+        {{ toast.message }}
+    </div>
 </div>
 
 <!-- GitHub Corner -->
@@ -370,32 +371,36 @@
 </a>
 
 <script>
+    // --- Constants ---
+
+    const DICE_SIDES = 6;
+    const DICE_COUNT = 5;
+    const DEFAULT_WORD_COUNT = 6;
+    const ROLL_ANIMATION_DURATION_MS = 1100;
+    const WORD_APPEAR_OFFSET_MS = 500;
+    const SUPPORTED_WORDLISTS = ['en', 'de'];
+    const DEFAULT_WORDLIST_ID = 'en';
+
+    // --- Utility Functions ---
+
     function copyToClipboard(text) {
-        const textarea = document.createElement('textarea');
-        textarea.value = text;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
+        return navigator.clipboard.writeText(text);
     }
 
     function hashColor(str, saturation = 50, lightness = 50, alpha = 100) {
-        const hash = BKDRHash(str);
-        const hue = hash % 359;
+        const hue = bkdrHash(str) % 359;
         return `hsla(${hue}, ${saturation}%, ${lightness}%, ${alpha}%)`;
     }
 
-    // from https://github.com/zenozeng/color-hash
-    function BKDRHash(str) {
-        let seed = 131;
-        var seed2 = 137;
+    // BKDR hash — adapted from https://github.com/zenozeng/color-hash
+    function bkdrHash(str) {
+        const seed = 131;
+        const seed2 = 137;
+        const MAX_SAFE = Math.floor(Number.MAX_SAFE_INTEGER / seed2);
         let hash = 0;
-        // make hash more sensitive for short string like 'a', 'b', 'c'
-        str += '#';
-        // Note: Number.MAX_SAFE_INTEGER equals 9007199254740991
-        let MAX_SAFE_INTEGER = Math.floor(9007199254740991 / seed2);
+        str += '#'; // improve sensitivity for short strings
         for (let i = 0; i < str.length; i++) {
-            if (hash > MAX_SAFE_INTEGER) {
+            if (hash > MAX_SAFE) {
                 hash = Math.floor(hash / seed2);
             }
             hash = hash * seed + str.charCodeAt(i);
@@ -405,165 +410,154 @@
 
     function randomDiceValue(sides = 6) {
         const randomBuffer = new Uint32Array(1);
-        const MAX_UINT32 = Math.pow(2, 32);
-        // Largest multiple of range within MAX_UINT64
-        const maxBiosFreeNumber = MAX_UINT32 - (MAX_UINT32 % sides);
-        do { 
+        const MAX_UINT32 = 2 ** 32;
+        // Largest multiple of range within MAX_UINT32 to avoid modulo bias
+        const maxBiasFreeNumber = MAX_UINT32 - (MAX_UINT32 % sides);
+        do {
             crypto.getRandomValues(randomBuffer);
-        // Rejection sampling ensures fairness by discarding values that would introduce bias     
-        } while (randomBuffer[0] >= maxBiosFreeNumber);
-    
+        } while (randomBuffer[0] >= maxBiasFreeNumber);
         return (randomBuffer[0] % sides) + 1;
     }
 
-    function checkRandomDice(dice, rollCount = 1_000_000, validDerivation = 0.01) {
-        const diceResults = {};
+    function verifyDice(dice, rollCount = 1_000_000, validDeviation = 0.01) {
+        const results = {};
         for (let i = 0; i < rollCount; i++) {
-            const diveValue = dice()
-            diceResults[diveValue] = (diceResults[diveValue] || 0) + 1
+            const value = dice();
+            results[value] = (results[value] || 0) + 1;
         }
-        const diceValueCounts = Object.values(diceResults);
-        const diceValueCountDistance = Math.abs(Math.min(...diceValueCounts) - Math.max(...diceValueCounts));
-        console.info('verify dice results:', diceResults);
-        if (diceValueCountDistance > rollCount * validDerivation) {
-            throw new Error('invalid dice');
-        } else {
-            console.info('valid dice');
+        const counts = Object.values(results);
+        const spread = Math.abs(Math.min(...counts) - Math.max(...counts));
+        console.info('dice verification results:', results);
+        if (spread > rollCount * validDeviation) {
+            throw new Error('Dice distribution is not uniform');
         }
+        console.info('dice verification passed');
     }
+
+    // --- Wordlist Loading ---
+
+    async function loadWordlist(id) {
+        let response = await fetch(`./assets/wordlist_${id}.txt`);
+        if (response.status !== 200) {
+            console.warn(`Wordlist '${id}' not found, falling back to '${DEFAULT_WORDLIST_ID}'`);
+            response = await fetch(`./assets/wordlist_${DEFAULT_WORDLIST_ID}.txt`);
+        }
+        const text = await response.text();
+        return new Map(text.split('\n').map(line => line.split('\t')));
+    }
+
+    function getInitialWordlistId() {
+        const saved = localStorage.getItem('wordlistId');
+        if (saved && SUPPORTED_WORDLISTS.includes(saved)) return saved;
+        const browserLang = (navigator.language || '').split('-')[0].toLowerCase();
+        if (SUPPORTED_WORDLISTS.includes(browserLang)) return browserLang;
+        return DEFAULT_WORDLIST_ID;
+    }
+
+    // --- Vue App ---
 
     Vue.createApp({
         setup() {
-            const diceSides = 6;
             const diceWordMap = Vue.ref(new Map());
-            const diceWordIdLength = 5;
-
-            const supportedWordlists = ['en', 'de'];
-            const defaultWordlistId = 'en';
-
-            function getInitialWordlistId() {
-                const saved = localStorage.getItem("wordlistId");
-                if (saved && supportedWordlists.includes(saved)) return saved;
-                const browserLang = (navigator.language || '').split('-')[0].toLowerCase();
-                if (supportedWordlists.includes(browserLang)) return browserLang;
-                return defaultWordlistId;
-            }
-
             const wordlistId = Vue.ref(getInitialWordlistId());
+            const words = Vue.ref([]);
+            const toast = Vue.ref({ message: null, fade: false });
 
-            async function loadWordlist(id) {
-                return fetch(`./assets/wordlist_${id}.txt`)
-                    .then(response => {
-                        if (response.status !== 200) {
-                            console.warn(`Wordlist '${id}' not found, falling back to '${defaultWordlistId}'`);
-                            return fetch(`./assets/wordlist_${defaultWordlistId}.txt`);
-                        }
-                        return response;
-                    })
-                    .then(response => response.text())
-                    .then(data => new Map(data.split('\n').map(line => line.split('\t'))));
-            }
+            // --- Helpers ---
 
             function rollWord() {
-                const dices = Array.from({length: diceWordIdLength}, () => ({
-                    value: randomDiceValue(diceSides),
+                const dices = Array.from({ length: DICE_COUNT }, () => ({
+                    value: randomDiceValue(DICE_SIDES),
                     delay: 400 * Math.random(),
                     animation: randomDiceValue(2),
                 }));
 
-                const id = dices.map(({value}) => value).join('');
-                let word = diceWordMap.value.get(id);
-                word = word[0].toUpperCase() + word.slice(1);
+                const id = dices.map(d => d.value).join('');
+                const rawWord = diceWordMap.value.get(id);
+                const word = rawWord[0].toUpperCase() + rawWord.slice(1);
                 const color = hashColor(word, 50, 50, 50);
-
-                const rollAnimationDurationMs = 1.1 * 1000; // see .rollX css class
-                const totalRollAnimationDuration = rollAnimationDurationMs + Math.max(...dices.map(({delay}) => delay));
+                const maxDiceDelay = Math.max(...dices.map(d => d.delay));
 
                 return {
                     dices,
                     id,
                     word,
                     color,
-                    delay: totalRollAnimationDuration - 500,
+                    delay: ROLL_ANIMATION_DURATION_MS + maxDiceDelay - WORD_APPEAR_OFFSET_MS,
                 };
             }
 
-            const words = Vue.ref([]);
-
-            const toast = Vue.ref({message: null, fade: false});
-
             function showToast(message) {
-                toast.value = {message, fade: false};
-                setTimeout(function () {
-                    toast.value.fade = true
-                }, 1000);
-                setTimeout(function () {
-                    toast.value.message = null
-                }, 2000);
+                toast.value = { message, fade: false };
+                setTimeout(() => { toast.value.fade = true; }, 1000);
+                setTimeout(() => { toast.value.message = null; }, 2000);
             }
 
-            const actions = {
-                rerollWords() {
-                    words.value.forEach((word, index) => this.rerollWord(index));
-                },
-                rerollWord(index) {
-                    const currentDices = words.value[index].dices;
-                    const word = rollWord();
-                    words.value[index]  = {
-                        ...word,
-                        dices: word.dices.map((dice, index) => ({
-                          ...dice,
-                          value: currentDices[index].value,
-                        })),
-                    };
-                    setTimeout(() => {
-                        words.value[index].dices = words.value[index].dices.map((dice, index) => ({
-                          ...dice,
-                          value: word.dices[index].value,
-                        }));
-                    }, 500);
-                },
-                addWord(count = 1) {
-                    for (let i = 0; i < count; i++) {
-                        words.value.push(rollWord());
-                    }
-                },
-                removeWord(count = 1) {
-                    for (let i = 0; i < count; i++) {
-                        if (words.value.length > 1) words.value.pop();
-                    }
-                },
-                copyWordsToClipboard() {
-                    const wordsSeparator = ' ';
-                    copyToClipboard(words.value.map(word => word.word).join(wordsSeparator));
-                    showToast("Copied to Clipboard!");
+            // --- Actions ---
+
+            function rerollWords() {
+                words.value.forEach((_, i) => rerollWord(i));
+            }
+
+            function rerollWord(wordIndex) {
+                const currentDices = words.value[wordIndex].dices;
+                const newWord = rollWord();
+                // Show old dice values initially, then swap to new values after a delay
+                words.value[wordIndex] = {
+                    ...newWord,
+                    dices: newWord.dices.map((die, i) => ({
+                        ...die,
+                        value: currentDices[i].value,
+                    })),
+                };
+                setTimeout(() => {
+                    words.value[wordIndex].dices = words.value[wordIndex].dices.map((die, i) => ({
+                        ...die,
+                        value: newWord.dices[i].value,
+                    }));
+                }, WORD_APPEAR_OFFSET_MS);
+            }
+
+            function addWord(count = 1) {
+                for (let i = 0; i < count; i++) {
+                    words.value.push(rollWord());
                 }
             }
 
+            function removeWord(count = 1) {
+                for (let i = 0; i < count; i++) {
+                    if (words.value.length > 1) words.value.pop();
+                }
+            }
+
+            function copyWordsToClipboard() {
+                const passphrase = words.value.map(w => w.word).join(' ');
+                copyToClipboard(passphrase);
+                showToast('Copied to Clipboard!');
+            }
+
+            // --- Lifecycle ---
+
             Vue.onMounted(async () => {
-                // verify dice
-                checkRandomDice(() => randomDiceValue(diceSides));
+                verifyDice(() => randomDiceValue(DICE_SIDES));
 
-                // load dice word list
                 diceWordMap.value = await loadWordlist(wordlistId.value);
+                addWord(+localStorage.getItem('wordCount') || DEFAULT_WORD_COUNT);
 
-                console.log("wordCount", localStorage.getItem("wordCount"))
-                actions.addWord(+localStorage.getItem("wordCount") || 6);
                 Vue.watchPostEffect(() => {
-                    localStorage.setItem("wordCount", words.value.length);
+                    localStorage.setItem('wordCount', words.value.length);
                 });
 
-                // reload wordlist and reroll when language selection changes
                 Vue.watch(wordlistId, async (newId) => {
-                    localStorage.setItem("wordlistId", newId);
+                    localStorage.setItem('wordlistId', newId);
                     diceWordMap.value = await loadWordlist(newId);
-                    actions.rerollWords();
+                    rerollWords();
                 });
             });
 
-            return {toast, words, wordlistId, ...actions};
+            return { toast, words, wordlistId, rerollWords, rerollWord, addWord, removeWord, copyWordsToClipboard };
         },
-    }).mount('#app')
+    }).mount('#app');
 </script>
 </body>
 </html>
